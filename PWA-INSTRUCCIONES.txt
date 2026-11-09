@@ -1,0 +1,24 @@
+AGROPARCELAS · VERSIÓN PWA
+
+CONTENIDO AÑADIDO
+- manifest.webmanifest: identidad y configuración instalable.
+- service-worker.js: guarda en caché la estructura y los recursos locales.
+- icons/: iconos de instalación.
+- index.html: enlaces PWA y registro automático del Service Worker.
+
+CÓMO PUBLICAR
+1. Sube TODO el contenido de esta carpeta a la raíz de tu sitio web (o conserva la carpeta agroparcelas completa).
+2. Accede mediante HTTPS. Para pruebas locales puedes usar http://localhost.
+3. Abre la dirección en Chrome o Edge y espera unos segundos a que termine el primer almacenamiento en caché.
+4. En Android: menú del navegador > Instalar aplicación o Añadir a pantalla de inicio.
+5. En Windows: usa el icono Instalar de la barra de direcciones o el menú del navegador.
+
+FUNCIONAMIENTO SIN INTERNET
+La estructura, estilos, scripts y bibliotecas locales quedan disponibles desde caché después de la primera visita con conexión.
+Los mapas satelitales y las teselas de mapas son servicios externos: requieren Internet para descargar imágenes que no estén disponibles. Esta configuración no descarga mapas completos para uso offline.
+
+DATOS
+El código original guarda los datos de AgroParcelas en el almacenamiento local del navegador. La PWA conserva ese mecanismo; los datos no se sincronizan automáticamente entre dispositivos. Mantén copias de respaldo periódicas.
+
+ACTUALIZACIONES
+Al publicar cambios en los archivos, incrementa CACHE_NAME en service-worker.js (por ejemplo, v2) para renovar la caché de la aplicación.
