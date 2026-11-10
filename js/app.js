@@ -302,6 +302,16 @@
       this.closeDrawers = closeDrawers;
 
       document.addEventListener('click', function (e) {
+        var visibility = e.target.closest('[data-visibility]');
+        if (visibility) {
+          var kind = visibility.dataset.visibility;
+          var visible = MapMod.toggleVisibility(kind);
+          visibility.setAttribute('aria-pressed', String(visible));
+          visibility.querySelector('span').textContent =
+            (visible ? 'Ocultar ' : 'Mostrar ') + (kind === 'parcelas' ? 'parcelas' : 'árboles');
+          visibility.classList.toggle('is-hidden', !visible);
+          return;
+        }
         var tool = e.target.closest('.tool');
         if (tool) { self.handleAction(tool.dataset.action); return; }
         var act = e.target.closest('[data-action]');
