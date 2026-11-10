@@ -154,6 +154,19 @@ a{ color:var(--green-600); }
 .tool.is-active{ background:var(--green); border-color:var(--green); color:#fff; box-shadow:0 2px 8px rgba(31,122,63,.35); }
 .tool.is-active svg{ color:#fff; }
 
+/* ------------------------- visibilidad del mapa ------------------------- */
+.visibility-controls{
+  display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:7px 10px 2px;
+}
+.visibility-btn{
+  min-width:0; padding:8px 5px; border:1px solid var(--line); border-radius:9px;
+  background:#f3f8f4; color:var(--green-600); cursor:pointer;
+  font-size:10.5px; font-weight:700; line-height:1.2; text-align:center;
+  transition:background .14s,border-color .14s,color .14s;
+}
+.visibility-btn:hover{ border-color:#bcd6c4; background:#eaf4ed; }
+.visibility-btn.is-hidden{ background:#fff; color:var(--muted); border-style:dashed; }
+
 /* -------------------------------- tabs ---------------------------------- */
 .tabs{ display:flex; gap:2px; padding:10px 10px 0; border-bottom:1px solid var(--line); }
 .tab{
