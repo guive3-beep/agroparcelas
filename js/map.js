@@ -75,6 +75,7 @@
     mode: 'idle', drawKind: 'sub',
     drawPoints: [], drawMarkers: [], draftLine: null, draftShape: null,
     polygons: {}, handles: [], treeMarkers: {},
+    showParcels: true, showTrees: true,
     terrenoPoly: null, selected: null, callbacks: {},
     layers: {},
 
@@ -148,6 +149,35 @@
       return this.map;
     },
 
+    toggleVisibility: function (kind) {
+      var self = this;
+      if (kind === 'parcelas') {
+        this.showParcels = !this.showParcels;
+        Object.keys(this.polygons).forEach(function (id) {
+          var layer = self.polygons[id];
+          if (self.showParcels && !self.map.hasLayer(layer)) self.map.addLayer(layer);
+          else if (!self.showParcels && self.map.hasLayer(layer)) self.map.removeLayer(layer);
+        });
+        if (!this.showParcels) {
+          this.handles.forEach(function (m) { self.map.removeLayer(m); });
+          this.handles = [];
+        } else {
+          this.renderVertices();
+        }
+        return this.showParcels;
+      }
+      if (kind === 'arboles') {
+        this.showTrees = !this.showTrees;
+        Object.keys(this.treeMarkers).forEach(function (id) {
+          var layer = self.treeMarkers[id];
+          if (self.showTrees && !self.map.hasLayer(layer)) self.map.addLayer(layer);
+          else if (!self.showTrees && self.map.hasLayer(layer)) self.map.removeLayer(layer);
+        });
+        return this.showTrees;
+      }
+      return true;
+    },
+
     render: function () {
       if (!this.ready) return;
       var self = this;
@@ -171,7 +201,8 @@
         var sel = self.selected && self.selected.kind === 'sub' && self.selected.id === sub.id;
         var poly = self.polygons[sub.id];
         if (!poly) {
-          poly = L.polygon(sub.vertices, {}).addTo(self.map);
+          poly = L.polygon(sub.vertices, {});
+          if (self.showParcels) poly.addTo(self.map);
           poly.on('click', function () {
             if (self.mode === 'draw' || self.mode === 'measure' || self.mode === 'place-tree') return;
             if (self.callbacks.onSelectSub) self.callbacks.onSelectSub(sub.id);
@@ -184,6 +215,8 @@
           color: sub.color, weight: sel ? 5 : 3, opacity: 0.95,
           fillColor: sub.color, fillOpacity: sel ? 0.45 : 0.28
         });
+        if (self.showParcels && !self.map.hasLayer(poly)) self.map.addLayer(poly);
+        else if (!self.showParcels && self.map.hasLayer(poly)) self.map.removeLayer(poly);
         if (poly.bringToFront) poly.bringToFront();
 
         var area = Geo.ringArea(sub.vertices);
@@ -214,7 +247,8 @@
           mk = L.marker([a.pos.lat, a.pos.lng], {
             draggable: true, zIndexOffset: 500,
             title: (a.nombre || a.especie) + (a.variedad ? ' · ' + a.variedad : '')
-          }).addTo(self.map);
+          });
+          if (self.showTrees) mk.addTo(self.map);
           mk.on('click', function () {
             if (self.callbacks.onSelectTree) self.callbacks.onSelectTree(a.id);
           });
@@ -230,6 +264,8 @@
         mk.setIcon(treeIcon(a));
         mk.setZIndexOffset(sel ? 900 : 500);
         mk.setOpacity(sel ? 1 : 0.95);
+        if (self.showTrees && !self.map.hasLayer(mk)) self.map.addLayer(mk);
+        else if (!self.showTrees && self.map.hasLayer(mk)) self.map.removeLayer(mk);
 
         /* etiqueta permanente con el nombre y el estilo elegido */
         var mostrar = a.mostrarEtiqueta !== false;
@@ -255,6 +291,7 @@
       this.handles.forEach(function (m) { self.map.removeLayer(m); });
       this.handles = [];
       if (!this.selected || this.mode !== 'idle') return;
+      if (this.selected.kind === 'sub' && !this.showParcels) return;
 
       var vertices = null, color = '#555';
       if (this.selected.kind === 'sub') {
