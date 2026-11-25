@@ -150,7 +150,7 @@
     },
 
     isTreeTypeVisible: function (a) {
-      return !this.treeTypeFilter.length || this.treeTypeFilter.indexOf(String(a.especie || a.nombre || a.categoria || 'Sin tipo').trim() || 'Sin tipo') >= 0;
+      return !this.treeTypeFilter.length || this.treeTypeFilter.indexOf(String(a.especie || a.categoria || 'Sin tipo').trim() || 'Sin tipo') >= 0;
     },
 
     setTreeTypeFilter: function (types) {
