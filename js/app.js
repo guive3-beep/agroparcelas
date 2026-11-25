@@ -281,18 +281,37 @@
         UI.renderList();
       });
 
-      // Filtro local de especies en la lista de árboles.
+      // Filtro múltiple de especies sincronizado entre lista y mapa.
       var treeList = document.getElementById('list');
+      function applyTreeTypeFilter(types) {
+        UI.treeTypeFilter = types;
+        MapMod.setTreeTypeFilter(types);
+        UI.renderList();
+      }
       treeList.addEventListener('change', function (e) {
-        if (e.target && e.target.id === 'tree-type-filter') {
-          UI.treeTypeFilter = e.target.value;
+        if (e.target && e.target.matches('[data-tree-type-option]')) {
+          var selectedTypes = Array.prototype.slice.call(
+            treeList.querySelectorAll('[data-tree-type-option]:checked')
+          ).map(function (input) { return input.value; });
+          applyTreeTypeFilter(selectedTypes);
+          UI.treeFilterOpen = true;
           UI.renderList();
         }
       });
       treeList.addEventListener('click', function (e) {
-        if (e.target.closest('[data-clear-tree-filter]')) {
-          UI.treeTypeFilter = '';
+        if (e.target.closest('[data-tree-filter-toggle]')) {
+          UI.treeFilterOpen = !UI.treeFilterOpen;
           UI.renderList();
+          return;
+        }
+        if (e.target.closest('[data-tree-filter-clear]')) {
+          applyTreeTypeFilter([]);
+          UI.treeFilterOpen = true;
+          return;
+        }
+        if (e.target.closest('[data-tree-filter-all]')) {
+          applyTreeTypeFilter(Store.data.arboles.map(function (a) { return String(a.especie || a.nombre || a.categoria || 'Sin tipo').trim() || 'Sin tipo'; }).filter(function (v, i, a) { return a.indexOf(v) === i; }));
+          UI.treeFilterOpen = true;
         }
       });
 
