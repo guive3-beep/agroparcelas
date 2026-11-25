@@ -310,7 +310,7 @@
           return;
         }
         if (e.target.closest('[data-tree-filter-all]')) {
-          applyTreeTypeFilter(Store.data.arboles.map(function (a) { return String(a.especie || a.nombre || a.categoria || 'Sin tipo').trim() || 'Sin tipo'; }).filter(function (v, i, a) { return a.indexOf(v) === i; }));
+          applyTreeTypeFilter(Store.data.arboles.map(function (a) { return String(a.especie || a.categoria || 'Sin tipo').trim() || 'Sin tipo'; }).filter(function (v, i, a) { return a.indexOf(v) === i; }));
           UI.treeFilterOpen = true;
         }
       });
