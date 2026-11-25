@@ -75,7 +75,7 @@
     mode: 'idle', drawKind: 'sub',
     drawPoints: [], drawMarkers: [], draftLine: null, draftShape: null,
     polygons: {}, handles: [], treeMarkers: {},
-    showParcels: true, showTrees: true,
+    showParcels: true, showTrees: true, treeTypeFilter: [],
     terrenoPoly: null, selected: null, callbacks: {},
     layers: {},
 
@@ -149,6 +149,15 @@
       return this.map;
     },
 
+    isTreeTypeVisible: function (a) {
+      return !this.treeTypeFilter.length || this.treeTypeFilter.indexOf(String(a.especie || a.nombre || a.categoria || 'Sin tipo').trim() || 'Sin tipo') >= 0;
+    },
+
+    setTreeTypeFilter: function (types) {
+      this.treeTypeFilter = Array.isArray(types) ? types.slice() : [];
+      if (this.ready) this.renderTrees();
+    },
+
     toggleVisibility: function (kind) {
       var self = this;
       if (kind === 'parcelas') {
@@ -170,8 +179,8 @@
         this.showTrees = !this.showTrees;
         Object.keys(this.treeMarkers).forEach(function (id) {
           var layer = self.treeMarkers[id];
-          if (self.showTrees && !self.map.hasLayer(layer)) self.map.addLayer(layer);
-          else if (!self.showTrees && self.map.hasLayer(layer)) self.map.removeLayer(layer);
+          if (self.showTrees && self.isTreeTypeVisible(Store.getArbol(id)) && !self.map.hasLayer(layer)) self.map.addLayer(layer);
+          else if ((!self.showTrees || !self.isTreeTypeVisible(Store.getArbol(id))) && self.map.hasLayer(layer)) self.map.removeLayer(layer);
         });
         return this.showTrees;
       }
@@ -264,8 +273,9 @@
         mk.setIcon(treeIcon(a));
         mk.setZIndexOffset(sel ? 900 : 500);
         mk.setOpacity(sel ? 1 : 0.95);
-        if (self.showTrees && !self.map.hasLayer(mk)) self.map.addLayer(mk);
-        else if (!self.showTrees && self.map.hasLayer(mk)) self.map.removeLayer(mk);
+        var visibleByType = self.isTreeTypeVisible(a);
+        if (self.showTrees && visibleByType && !self.map.hasLayer(mk)) self.map.addLayer(mk);
+        else if ((!self.showTrees || !visibleByType) && self.map.hasLayer(mk)) self.map.removeLayer(mk);
 
         /* etiqueta permanente con el nombre y el estilo elegido */
         var mostrar = a.mostrarEtiqueta !== false;
