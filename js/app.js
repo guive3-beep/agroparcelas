@@ -281,6 +281,21 @@
         UI.renderList();
       });
 
+      // Filtro local de especies en la lista de árboles.
+      var treeList = document.getElementById('list');
+      treeList.addEventListener('change', function (e) {
+        if (e.target && e.target.id === 'tree-type-filter') {
+          UI.treeTypeFilter = e.target.value;
+          UI.renderList();
+        }
+      });
+      treeList.addEventListener('click', function (e) {
+        if (e.target.closest('[data-clear-tree-filter]')) {
+          UI.treeTypeFilter = '';
+          UI.renderList();
+        }
+      });
+
       var backdrop = document.getElementById('backdrop');
       function closeDrawers() {
         document.getElementById('panel-left').classList.remove('is-open');
