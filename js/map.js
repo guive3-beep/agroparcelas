@@ -150,6 +150,7 @@
     },
 
     isTreeTypeVisible: function (a) {
+      if (!a) return false;
       return !this.treeTypeFilter.length || this.treeTypeFilter.indexOf(String(a.especie || a.categoria || 'Sin tipo').trim() || 'Sin tipo') >= 0;
     },
 
@@ -257,7 +258,7 @@
             draggable: true, zIndexOffset: 500,
             title: (a.nombre || a.especie) + (a.variedad ? ' · ' + a.variedad : '')
           });
-          if (self.showTrees) mk.addTo(self.map);
+          if (self.showTrees && self.isTreeTypeVisible(a)) mk.addTo(self.map);
           mk.on('click', function () {
             if (self.callbacks.onSelectTree) self.callbacks.onSelectTree(a.id);
           });
