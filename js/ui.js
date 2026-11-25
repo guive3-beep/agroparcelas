@@ -123,6 +123,11 @@
 
   var activeTab = 'subparcelas';
   var searchTerm = '';
+  var treeTypeFilter = '';
+
+  function treeType(a) {
+    return String(a.especie || a.nombre || a.categoria || 'Sin tipo').trim() || 'Sin tipo';
+  }
 
   function matchSub(s) {
     if (!searchTerm) return true;
@@ -203,10 +208,33 @@
           '</div></div></div>';
       }).join('');
     } else {
-      var arboles = Store.data.arboles.filter(matchArbol);
+      var tipos = {};
+      Store.data.arboles.forEach(function (a) {
+        var tipo = treeType(a);
+        if (!tipos[tipo]) tipos[tipo] = { cantidad: 0, registros: 0 };
+        tipos[tipo].cantidad += Math.max(0, Number(a.cantidad) || 0);
+        tipos[tipo].registros += 1;
+      });
+      var tiposOrdenados = Object.keys(tipos).sort(function (a, b) { return a.localeCompare(b, 'es'); });
+      var arboles = Store.data.arboles.filter(function (a) {
+        return matchArbol(a) && (!treeTypeFilter || treeType(a) === treeTypeFilter);
+      });
       if (!Store.data.arboles.length) { host.innerHTML = emptyBlock('Sin árboles', 'Use “Árbol” y toque el mapa para ubicarlo.'); return; }
-      if (!arboles.length) { host.innerHTML = emptyBlock('Sin resultados', 'Ningún árbol coincide con la búsqueda.'); return; }
-      host.innerHTML = arboles.map(function (a) {
+      var cantidadVisible = arboles.reduce(function (total, a) { return total + (Number(a.cantidad) || 0); }, 0);
+      var registrosVisible = arboles.length;
+      var filtroHtml = '<div class="tree-filter" aria-label="Filtro de árboles">' +
+        '<label for="tree-type-filter"><span>Tipo de árbol</span><select id="tree-type-filter" aria-label="Filtrar por especie">' +
+        '<option value="">Todos los tipos (' + Store.data.arboles.reduce(function (n, a) { return n + (Number(a.cantidad) || 0); }, 0) + ')</option>' +
+        tiposOrdenados.map(function (tipo) {
+          return '<option value="' + esc(tipo) + '"' + (treeTypeFilter === tipo ? ' selected' : '') + '>' +
+            esc(tipo) + ' (' + Geo.nfmt(tipos[tipo].cantidad) + ')</option>';
+        }).join('') + '</select></label>' +
+        '<div class="tree-filter-summary"><strong>' + Geo.nfmt(cantidadVisible) + '</strong> ejemplares' +
+        '<span>· ' + registrosVisible + ' registros</span></div>' +
+        (treeTypeFilter ? '<button type="button" class="tree-filter-clear" data-clear-tree-filter title="Mostrar todos los tipos">Limpiar</button>' : '') +
+        '</div>';
+      if (!arboles.length) { host.innerHTML = filtroHtml + emptyBlock('Sin resultados', 'Ningún árbol coincide con el filtro o la búsqueda.'); return; }
+      host.innerHTML = filtroHtml + arboles.map(function (a) {
         var sel = App.selected && App.selected.kind === 'arbol' && App.selected.id === a.id;
         return '<div class="item' + (sel ? ' is-active' : '') + '" data-kind="arbol" data-id="' + a.id + '">' +
           '<span class="item-ico"><img alt="" width="22" height="29" src="' + treeDataUrl(a) + '"></span>' +
@@ -445,6 +473,8 @@
     get searchTerm() { return searchTerm; },
     set searchTerm(v) { searchTerm = (v || '').toLowerCase().trim(); },
     get activeTab() { return activeTab; },
-    set activeTab(v) { activeTab = v; }
+    set activeTab(v) { activeTab = v; },
+    get treeTypeFilter() { return treeTypeFilter; },
+    set treeTypeFilter(v) { treeTypeFilter = (v || '').trim(); }
   };
 })(window);
