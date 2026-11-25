@@ -127,7 +127,7 @@
   var treeFilterOpen = false;
 
   function treeType(a) {
-    return String(a.especie || a.nombre || a.categoria || 'Sin tipo').trim() || 'Sin tipo';
+    return String(a.especie || a.categoria || 'Sin tipo').trim() || 'Sin tipo';
   }
 
   function matchSub(s) {
